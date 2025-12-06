@@ -1,0 +1,32 @@
+services:
+  # Backend Java Service
+  - type: web
+    name: recipeshare-api
+    env: java
+    buildCommand: mvn clean package -DskipTests
+    # Render will auto-detect Java and handle WAR deployment
+    # If auto-detection doesn't work, you may need to configure startCommand manually
+    # startCommand: java -jar target/RecipeShare.war
+    envVars:
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+    healthCheckPath: /api/auth/me
+
+  # Frontend React App (Static Site)
+  - type: web
+    name: recipeshare-frontend
+    env: static
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: client/dist
+    envVars:
+      - key: VITE_API_URL
+        # IMPORTANT: Update this with your actual backend service URL after deployment
+        # Format: https://your-backend-service-name.onrender.com/api
+        value: https://recipeshare-api.onrender.com/api
+
